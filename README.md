@@ -16,11 +16,29 @@ This simple class can turn any PNG, JPG or JPEG into a valid HTML table. Heres a
 ```php
 <?php 
 
-	require './ImageTable.php';
+require './ImageTable.php';
 
-	$image_file = 'image.png';
+$image_file = 'image.png';
 
-	$it = new ImageTable($image_file);
+$it = new ImageTable($image_file);
 
 ?>
 ```
+
+### Output HTML to browser
+
+```php
+
+$it->renderTable();
+
+```
+
+### Output HTML to new file
+
+```php
+
+$it->renderTable('image-table.html');
+
+```
+
+That's it! Star this project if you've found it useful!
