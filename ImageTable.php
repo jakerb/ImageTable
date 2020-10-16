@@ -67,12 +67,14 @@
 			$width = imagesx($image);
 			$height = imagesy($image);
 
+			$style = '<style>table.imagetable tr td { padding: 0; width: 1px; height: 1px; }</style>';
 			$table_open = '<table class="imagetable" style="border:0;border-collapse:collapse;">';
 			$table_close = '</table>';
 			$table_row_open = '<tr>';
 			$table_row_close = '</tr>';
 
 			if($file) {
+				fwrite($file, $style);
 				fwrite($file, $table_open);
 			} else {
 				echo $table_open;
