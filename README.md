@@ -10,6 +10,9 @@ This is an experimental project created to try and overcome the issue of loading
 - PHP 5+
 - GD Library
 
+## Filesize
+Using the thumbnail of ~~Brad Pitt~~ me above which is 6KB as a JPEG image is turned into a 271KB HTML file once rendered. The size difference is substantial and ImageTable has been optimized to output the smallest filesize based on tests. If you can contribute a more efficient output then please PR!
+
 ## How to Use
 This simple class can turn any PNG, JPG or JPEG into a valid HTML table. Heres an example of how to use ImageTable.
 
