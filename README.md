@@ -1,7 +1,7 @@
 # ImageTable
 Convert images to HTML tables using GD, great for email templates.
 
-<a href="https://codepen.io/jakebown/pen/eYzZyaN">![Jake](https://ibb.co/hfy0n9X "See it in action")</a>
+<a href="https://codepen.io/jakebown/pen/eYzZyaN">![Jake](https://i.ibb.co/YZ3gKQD/sample2.jpg "See it in action")</a>
 
 This is an experimental project created to try and overcome the issue of loading images into email templates by replacing them using a table. This project works great with small icons and graphics, it's not recommended for larger images.
 
