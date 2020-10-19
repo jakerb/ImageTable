@@ -3,31 +3,41 @@ namespace jakerb;
 
 class ImageTable {
 
-  /*
-   * imageSrc 	Local image file with MIME type PNG, JPEG or JPG.
+  /**
+   * @var string
+   * The path to the image being processed.
    */
   public $imageSrc;
 
-  /*
-   * imageMime 	MIME type of image used to specify to GD.
+  /**
+   * @var string $imageMime
+   * The MIME type of image used to specify to GD.
    */
   public $imageMIME;
 
 
-  public function __construct($imageSrc = String) {
+  /**
+   * ImageTable constructor.
+   *
+   * @param string $imageSrc Path to the image.
+   *
+   * @return \jakerb\ImageTable
+   * @throws \Exception
+   */
+  public function __construct($imageSrc) {
 
     if (!extension_loaded('gd')) {
-      throw new Exception("ImageTable requires GD library to work.", 1);
+      throw new \Exception("ImageTable requires GD library to work.", 1);
     }
 
     if (!file_exists($imageSrc)) {
-      throw new Exception("Could not find Image file.", 1);
+      throw new \Exception("Could not find Image file.", 1);
     }
 
     $this->imageMIME = strtolower(pathinfo($imageSrc, PATHINFO_EXTENSION));
 
     if (!in_array(strtolower($this->imageMIME), ['png', 'jpg', 'jpeg'])) {
-      throw new Exception("Filetype is not supported.", 1);
+      throw new \Exception("Filetype is not supported.", 1);
     }
 
     $this->imageSrc = $imageSrc;
@@ -35,6 +45,13 @@ class ImageTable {
     return $this;
   }
 
+
+  /**
+   * @param bool|string $outputFileName Path of output file, or false to skip
+   * file generation.
+   *
+   * @return \jakerb\ImageTable
+   */
   public function renderTable($outputFileName = FALSE) {
 
     $image = FALSE;
