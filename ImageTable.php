@@ -46,7 +46,7 @@
 				case 'jpg':
 					$image = imagecreatefromjpeg($this->imageSrc);
 					break;
-				
+
 				case 'png':
 					$image = imagecreatefrompng($this->imageSrc);
 					break;
@@ -81,7 +81,7 @@
 			}
 
 			for($x = 0; $x < $width; $x++) {
-			    	
+
 			    if($file) {
 			    	fwrite($file, $table_row_open);
 			    } else {
@@ -90,11 +90,11 @@
 
 			    for($y = 0; $y < $height; $y++) {
 			    	$rgb = imagecolorat($image, $y, $x);
-			    	
+
 			        if(!$rgb) {
 						continue;
 					}
-			        
+
 			        $r = ($rgb >> 16) & 0xFF;
 					$g = ($rgb >> 8) & 0xFF;
 					$b = $rgb & 0xFF;
@@ -108,13 +108,13 @@
 			        }
 
 			    }
-			    
+
 			    if($file) {
 		        	fwrite($file, $table_row_close);
 		        } else {
 		        	echo $table_row_close;
 		        }
-			
+
 			}
 
 			if($file) {
@@ -128,5 +128,3 @@
 		}
 
 	}
-
-?>
