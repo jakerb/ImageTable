@@ -60,31 +60,30 @@ class ImageTable {
    * @return \jakerb\ImageTable
    */
   public function renderTable($outputFileName = FALSE) {
-
-    $image = FALSE;
-    $file = FALSE;
+    $write_to_file = $outputFileName !== false;
+    $image = null;
+    $file = null;
 
     switch ($this->imageMIME) {
-      case 'jpeg':
-      case 'jpg':
+      case 'image/jpeg':
         $image = imagecreatefromjpeg($this->imageSrc);
         break;
-
-      case 'png':
+      case 'image/png':
         $image = imagecreatefrompng($this->imageSrc);
         break;
     }
 
-    if (!$image) {
-      throw new Exception("MIME type is not supported.", 1);
+    if (!isset($image)) {
+      throw new \Exception("Failed to create image from supplied file.", 1);
     }
 
-    if ($outputFileName) {
+    if ($write_to_file) {
       if (file_exists($outputFileName)) {
-        throw new Exception("Cannot render table to specified file as it already exists.", 1);
+        throw new \Exception("Cannot render table to specified file as it already exists.", 1);
       }
 
       $file = fopen($outputFileName, "w");
+      ob_start();
     }
 
     $width = imagesx($image);
@@ -96,60 +95,34 @@ class ImageTable {
     $table_row_open = '<tr>';
     $table_row_close = '</tr>';
 
-    if ($file) {
-      fwrite($file, $style);
-      fwrite($file, $table_open);
-    }
-    else {
-      echo $table_open;
-    }
+    echo $style;
+    echo $table_open;
 
-    for ($x = 0; $x < $width; $x++) {
+    for ($y = 0; $y < $height; $y++) {
+      echo $table_row_open;
 
-      if ($file) {
-        fwrite($file, $table_row_open);
-      }
-      else {
-        echo $table_row_open;
-      }
+      for ($x = 0; $x < $width; $x++) {
+        if($rgb = imagecolorat($image, $x, $y)) {
+          $r = ($rgb >> 16) & 0xFF;
+          $g = ($rgb >> 8) & 0xFF;
+          $b = $rgb & 0xFF;
 
-      for ($y = 0; $y < $height; $y++) {
-        $rgb = imagecolorat($image, $y, $x);
+          $table_column = sprintf("<td bgcolor=\"#%02x%02x%02x\"></td>", $r, $g, $b);
 
-        if (!$rgb) {
-          continue;
-        }
-
-        $r = ($rgb >> 16) & 0xFF;
-        $g = ($rgb >> 8) & 0xFF;
-        $b = $rgb & 0xFF;
-
-        $table_column = sprintf("<td bgcolor=\"#%02x%02x%02x\"></td>", $r, $g, $b);
-
-        if ($file) {
-          fwrite($file, $table_column);
-        }
-        else {
           echo $table_column;
         }
-
       }
 
-      if ($file) {
-        fwrite($file, $table_row_close);
-      }
-      else {
-        echo $table_row_close;
-      }
-
+      echo $table_row_close;
     }
 
-    if ($file) {
-      fwrite($file, $table_close);
+    echo $table_close;
+
+    if($write_to_file){
+      $file_contents = ob_get_contents();
+      ob_end_clean();
+      fwrite($file, $file_contents);
       fclose($file);
-    }
-    else {
-      echo $table_close;
     }
 
     return $this;
