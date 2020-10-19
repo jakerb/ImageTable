@@ -4,6 +4,15 @@ namespace jakerb;
 class ImageTable {
 
   /**
+   * @var string[]
+   * A list of allowed MIME Types.
+   */
+  private $allowedMimeTypes = [
+    'image/png',
+    'image/jpeg',
+  ];
+
+  /**
    * @var string
    * The path to the image being processed.
    */
@@ -30,13 +39,13 @@ class ImageTable {
     }
 
     if (!file_exists($imageSrc)) {
-      throw new \Exception("Could not find Image file.", 1);
+      throw new \Exception("The file you provided could not be found.", 1);
     }
 
-    $this->imageMIME = strtolower(pathinfo($imageSrc, PATHINFO_EXTENSION));
+    $this->imageMIME = mime_content_type($imageSrc);
 
-    if (!in_array(strtolower($this->imageMIME), ['png', 'jpg', 'jpeg'])) {
-      throw new \Exception("Filetype is not supported.", 1);
+    if (!in_array(strtolower($this->imageMIME), $this->allowedMimeTypes)) {
+      throw new \Exception("The file you provided is of an unsupported or unrecognised type.", 1);
     }
 
     $this->imageSrc = $imageSrc;
