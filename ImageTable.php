@@ -7,7 +7,7 @@ class ImageTable {
    * @var string[]
    * A list of allowed MIME Types.
    */
-  private $allowedMimeTypes = [
+  protected $allowedMimeTypes = [
     'image/png',
     'image/jpeg',
   ];
@@ -16,13 +16,13 @@ class ImageTable {
    * @var string
    * The path to the image being processed.
    */
-  public $imageSrc;
+  protected $imageSrc;
 
   /**
    * @var string $imageMime
    * The MIME type of image used to specify to GD.
    */
-  public $imageMIME;
+  protected $imageMIME;
 
   /**
    * ImageTable constructor.
