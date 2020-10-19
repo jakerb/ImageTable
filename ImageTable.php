@@ -15,7 +15,6 @@ class ImageTable {
    */
   public $imageMIME;
 
-
   /**
    * ImageTable constructor.
    *
@@ -44,7 +43,6 @@ class ImageTable {
 
     return $this;
   }
-
 
   /**
    * @param bool|string $outputFileName Path of output file, or false to skip
