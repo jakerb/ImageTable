@@ -25,7 +25,7 @@ require './ImageTable.php';
 
 $image_file = 'image.png';
 
-$it = new ImageTable($image_file);
+$it = new jakerb\ImageTable($image_file);
 
 ?>
 ```
