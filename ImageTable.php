@@ -1,132 +1,131 @@
 <?php
+namespace jakerb;
 
+class ImageTable {
 
-	class ImageTable {
+  /**
+   * @var string[]
+   * A list of allowed MIME Types.
+   */
+  protected $allowedMimeTypes = [
+    'image/png',
+    'image/jpeg',
+  ];
 
-		/*
-		 * imageSrc 	Local image file with MIME type PNG, JPEG or JPG.
-		 */
-		public $imageSrc;
+  /**
+   * @var string
+   * The path to the image being processed.
+   */
+  protected $imageSrc;
 
-		/*
-		 * imageMime 	MIME type of image used to specify to GD.
-		 */
-		public $imageMIME;
+  /**
+   * @var string $imageMime
+   * The MIME type of image used to specify to GD.
+   */
+  protected $imageMIME;
 
+  /**
+   * ImageTable constructor.
+   *
+   * @param string $imageSrc Path to the image.
+   *
+   * @return \jakerb\ImageTable
+   * @throws \Exception
+   */
+  public function __construct($imageSrc) {
 
+    if (!extension_loaded('gd')) {
+      throw new \Exception("ImageTable requires GD library to work.", 1);
+    }
 
-		public function __construct($imageSrc = String) {
+    if (!file_exists($imageSrc)) {
+      throw new \Exception("The file you provided could not be found.", 1);
+    }
 
-			if(!extension_loaded('gd')) {
-				throw new Exception("ImageTable requires GD library to work.", 1);
-			}
+    $this->imageMIME = mime_content_type($imageSrc);
 
-			if(!file_exists($imageSrc)) {
-				throw new Exception("Could not find Image file.", 1);
-			}
+    if (!in_array(strtolower($this->imageMIME), $this->allowedMimeTypes)) {
+      throw new \Exception("The file you provided is of an unsupported or unrecognised type.", 1);
+    }
 
-			$this->imageMIME = strtolower(pathinfo($imageSrc, PATHINFO_EXTENSION));
+    $this->imageSrc = $imageSrc;
 
-			if(!in_array(strtolower($this->imageMIME), array('png', 'jpg', 'jpeg'))) {
-				throw new Exception("Filetype is not supported.", 1);
-			}
+    return $this;
+  }
 
-			$this->imageSrc = $imageSrc;
+  /**
+   * @param bool|string $outputFileName Path of output file, or false to skip
+   * file generation.
+   *
+   * @return \jakerb\ImageTable
+   */
+  public function renderTable($outputFileName = FALSE) {
+    $write_to_file = $outputFileName !== false;
+    $image = null;
+    $file = null;
 
-			return $this;
-		}
+    switch ($this->imageMIME) {
+      case 'image/jpeg':
+        $image = imagecreatefromjpeg($this->imageSrc);
+        break;
+      case 'image/png':
+        $image = imagecreatefrompng($this->imageSrc);
+        break;
+    }
 
-		public function renderTable($outputFileName = false) {
+    if (!isset($image)) {
+      throw new \Exception("Failed to create image from supplied file.", 1);
+    }
 
-			$image = false;
-			$file = false;
+    if ($write_to_file) {
+      if (file_exists($outputFileName)) {
+        throw new \Exception("Cannot render table to specified file as it already exists.", 1);
+      }
 
-			switch ($this->imageMIME) {
-				case 'jpeg':
-				case 'jpg':
-					$image = imagecreatefromjpeg($this->imageSrc);
-					break;
-				
-				case 'png':
-					$image = imagecreatefrompng($this->imageSrc);
-					break;
-			}
+      $file = fopen($outputFileName, "w");
+      ob_start();
+    }
 
-			if(!$image) {
-				throw new Exception("MIME type is not supported.", 1);
-			}
+    $width = imagesx($image);
+    $height = imagesy($image);
 
-			if($outputFileName) {
-				if(file_exists($outputFileName)) {
-					throw new Exception("Cannot render table to specified file as it already exists.", 1);
-				}
+    $style = '<style>table.imagetable tr td { padding: 0; width: 1px; height: 1px; }</style>';
+    $table_open = '<table class="imagetable" style="border:0;border-collapse:collapse;">';
+    $table_close = '</table>';
+    $table_row_open = '<tr>';
+    $table_row_close = '</tr>';
 
-				$file = fopen($outputFileName, "w");
-			}
+    echo $style;
+    echo $table_open;
 
-			$width = imagesx($image);
-			$height = imagesy($image);
+    for ($y = 0; $y < $height; $y++) {
+      echo $table_row_open;
 
-			$style = '<style>table.imagetable tr td { padding: 0; width: 1px; height: 1px; }</style>';
-			$table_open = '<table class="imagetable" style="border:0;border-collapse:collapse;">';
-			$table_close = '</table>';
-			$table_row_open = '<tr>';
-			$table_row_close = '</tr>';
+      for ($x = 0; $x < $width; $x++) {
+        if($rgb = imagecolorat($image, $x, $y)) {
+          $r = ($rgb >> 16) & 0xFF;
+          $g = ($rgb >> 8) & 0xFF;
+          $b = $rgb & 0xFF;
 
-			if($file) {
-				fwrite($file, $style);
-				fwrite($file, $table_open);
-			} else {
-				echo $table_open;
-			}
+          $table_column = sprintf("<td bgcolor=\"#%02x%02x%02x\"></td>", $r, $g, $b);
 
-			for($x = 0; $x < $width; $x++) {
-			    	
-			    if($file) {
-			    	fwrite($file, $table_row_open);
-			    } else {
-			    	echo $table_row_open;
-			    }
+          echo $table_column;
+        }
+      }
 
-			    for($y = 0; $y < $height; $y++) {
-			    	$rgb = imagecolorat($image, $y, $x);
-			    	
-			        if(!$rgb) {
-						continue;
-					}
-			        
-			        $r = ($rgb >> 16) & 0xFF;
-					$g = ($rgb >> 8) & 0xFF;
-					$b = $rgb & 0xFF;
+      echo $table_row_close;
+    }
 
-			        $table_column = sprintf("<td bgcolor=\"#%02x%02x%02x\"></td>", $r,$g,$b);
+    echo $table_close;
 
-			        if($file) {
-			        	fwrite($file, $table_column);
-			        } else {
-			        	echo $table_column;
-			        }
+    if($write_to_file){
+      $file_contents = ob_get_contents();
+      ob_end_clean();
+      fwrite($file, $file_contents);
+      fclose($file);
+    }
 
-			    }
-			    
-			    if($file) {
-		        	fwrite($file, $table_row_close);
-		        } else {
-		        	echo $table_row_close;
-		        }
-			
-			}
+    return $this;
+  }
 
-			if($file) {
-	        	fwrite($file, $table_close);
-	        	fclose($file);
-	        } else {
-	        	echo $table_close;
-	        }
-
-	        return $this;
-		}
-
-	}
-
-?>
+}
